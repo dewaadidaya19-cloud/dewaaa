@@ -442,18 +442,15 @@
       html += `<div class="cv-section"><div class="cv-h2">Pendidikan</div>`;
       state.education.forEach(edu => {
         html += `<div class="cv-entry">
-          <div class="cv-row">
-            <div class="cv-entry-title">${escapeHtml(edu.school) || '&nbsp;'}</div>
-            <div class="cv-entry-meta">${escapeHtml(edu.period)}</div>
-          </div>
-          <div class="cv-row" style="margin-top:-1px;">
-            <div style="font-size:13px; color:#1A1A1A;">${escapeHtml(edu.degree)}${edu.extra ? ' — ' + escapeHtml(edu.extra) : ''}</div>
-          </div>
+          <div class="cv-entry-title">${escapeHtml(edu.school) || '&nbsp;'}</div>
+          <div>${escapeHtml(edu.degree)}</div>
+          <div>${escapeHtml(edu.period)}</div>
+          ${edu.extra ? `<div>${escapeHtml(edu.extra)}</div>` : ''}
         </div>`;
       });
       html += `</div>`;
     }
-
+    
     // Skills
     const skills = skillsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
     if(skills.length){
