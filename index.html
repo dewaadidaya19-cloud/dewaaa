@@ -250,11 +250,12 @@
     <div class="brand-mark">CV</div>
     <div>
       <h1>Builder CV ATS-Friendly</h1>
-      <span>Isi form, lihat preview, lalu unduh sebagai PDF</span>
+      <span>Isi form, lihat preview, lalu unduh sebagai PDF atau Word</span>
     </div>
   </div>
-  <button class="btn btn-primary" onclick="window.print()">Unduh PDF</button>
-  <button class="btn" style="background:#2b579a; color:white; margin-left:8px;" onclick="exportToWord()">Unduh Word (.doc)</button>
+  <div>
+    <button class="btn btn-primary" onclick="window.print()">Unduh PDF</button>
+    <button class="btn" style="background:#2b579a; color:white; margin-left:8px;" onclick="exportToWord()">Unduh Word (.doc)</button>
   </div>
 </div>
 
@@ -310,8 +311,7 @@
         <h2>Sertifikat</h2>
         <label>Satu sertifikat per baris (Sertifikat — Penerbit — Tahun)</label>
         <textarea id="f-certs" oninput="render()" style="min-height:100px" placeholder="Contoh: Certified SolidWorks Associate — Dassault Systèmes — 2025"></textarea>
-        </div>
-      
+      </div>
 
     </div>
   </div>
@@ -410,6 +410,7 @@
       .map(s => `<li>${escapeHtml(s)}</li>`)
       .join('');
   }
+
   function render(){
     const name = document.getElementById('f-name').value.trim();
     const city = document.getElementById('f-city').value.trim();
@@ -418,8 +419,6 @@
     const link = document.getElementById('f-link').value.trim();
     const summary = document.getElementById('f-summary').value.trim();
     const skillsRaw = document.getElementById('f-skills').value;
-    const skillsRaw = document.getElementById('f-skills').value;
-
     const certsRaw = document.getElementById('f-certs').value;
     
     const contactParts = [city, email, phone, link].filter(Boolean);
@@ -468,7 +467,9 @@
       html += `<div class="cv-section"><div class="cv-h2">Skill</div>
         <div class="cv-skills"><ul>${skills.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
       </div>`;
+    }
 
+    // Certificates
     const certs = certsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
     if(certs.length){
       html += `<div class="cv-section"><div class="cv-h2">Sertifikat</div>
@@ -499,6 +500,7 @@
       </div>
     `).join('');
   }
+
   function exportToWord() {
     const cvContent = document.getElementById('cv-preview').innerHTML;
     const styles = document.getElementsByTagName('style')[0].innerHTML;
@@ -546,6 +548,7 @@
   document.getElementById('f-link').value = 'linkedin.com/in/kamu';
   document.getElementById('f-summary').value = 'Mahasiswa S1 Teknik Industri (Semester 4) Universitas Teknologi Buana dengan pengalaman lebih dari 5 tahun dalam pengelolaan administrasi operasional toko retail dan inventaris barang secara teliti. Memiliki pengalaman praktis dalam analisis perancangan sistem kerja dan implementasi program K3 melalui kegiatan studi lapangan di industri manufaktur. Tertarik pada bidang supply chain management, logistics operation, production planning, dan warehouse administration.';
   document.getElementById('f-skills').value = 'Analisis Sistem Kerja: Mampu merancang alur kerja efektif menggunakan peta proses operasi\nMicrosoft Office (Word, Excel, PowerPoint)\nManajemen Inventaris: Mengelola pencatatan stok dan rekapitulasi data barang secara akurat\nKomunikasi Profesional: Menyampaikan laporan kendala operasional secara jelas ke tim internal';
+  document.getElementById('f-certs').value = 'Pelatihan Keselamatan dan Kesehatan Kerja (K3) Umum — BNSP — 2025\nSertifikasi AutoCAD 2D Drafting — Autodesk Certified User — 2024';
 
   addExperience({
     title: 'Staf Operasional & Administrasi Toko',
