@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Builder CV ATS-Friendly</title>
+<!-- Pustaka External untuk Auto-Download PDF tanpa Jendela Cetak -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root{
     --navy: #142033;
@@ -181,7 +183,7 @@
   }
   .preview-toolbar .label{color:#EDEFF3; font-size:13px; font-weight:600;}
 
-  /* TATA LETAK KERTAS PREVIEW */
+  /* TATA LETAK KERTAS PREVIEW (DI-RAPATKAN) */
   .paper{
     background:white;
     width: 100%;
@@ -214,6 +216,21 @@
   .cv-section{ margin-bottom: 4px; }
   .cv-entry{ margin-bottom: 4px; }
   .cv-entry:last-child{ margin-bottom:0; }
+  
+  /* KLUSTER STRUKTUR BARIS KIRI-KANAN (FLEX) */
+  .cv-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1px;
+  }
+  .cv-entry-title{ font-weight:700; flex: 1; padding-right: 15px; }
+  .cv-entry-meta{ font-size:12.5px; color:#1A1A1A; text-align: right; white-space: nowrap; }
+  
+  .cv-entry ul{ margin: 1px 0 0; padding-left: 18px; }
+  .cv-entry ul li{ margin-bottom: 1px; text-align: justify; }
+  .cv-skills ul{ margin:0; padding-left:18px; }
+  .cv-skills li{ margin-bottom:1px; }
   .cv-empty{ color:#999; font-style:italic; }
 
   @media print{
@@ -239,7 +256,8 @@
     </div>
   </div>
   <div>
-    <button class="btn btn-primary" onclick="window.print()">Unduh PDF</button>
+    <!-- Fungsi tombol PDF diubah agar mengunduh file secara otomatis -->
+    <button class="btn btn-primary" onclick="exportToPdf()">Unduh PDF</button>
     <button class="btn" style="background:#2b579a; color:white; margin-left:8px;" onclick="exportToWord()">Unduh Word (.doc)</button>
   </div>
 </div>
@@ -392,7 +410,7 @@
       .split('\n')
       .map(s => s.trim())
       .filter(Boolean)
-      .map(s => `<li style="margin-bottom:1px; text-align:justify;">${escapeHtml(s)}</li>`)
+      .map(s => `<li>${escapeHtml(s)}</li>`)
       .join('');
   }
 
@@ -416,30 +434,28 @@
       html += `<div class="cv-summary">${escapeHtml(summary)}</div>`;
     }
 
-    // Experience (Menggunakan Tabel agar Word tidak berantakan)
+    // Experience
     if(state.experience.length){
       html += `<div class="cv-section"><div class="cv-h2">Pengalaman</div>`;
       state.experience.forEach(exp => {
         html += `<div class="cv-entry">
-          <table style="width:100%; border-collapse:collapse; margin-bottom:1px; border:none;">
-            <tr>
-              <td style="text-align:left; font-weight:700; color:#1A1A1A; padding:0; vertical-align:top;">${escapeHtml(exp.title) || '&nbsp;'}</td>
-              <td style="text-align:right; font-size:12.5px; color:#1A1A1A; padding:0; white-space:nowrap; vertical-align:top; width:1%;">${escapeHtml(exp.period)}</td>
-            </tr>
-          </table>
-          ${exp.place ? `<div style="font-size:13px; color:#1A1A1A; margin-top:-1px;">${escapeHtml(exp.place)}</div>` : ''}
-          <ul style="margin-top:2px; margin-bottom:4px; padding-left:18px;">${bulletsToLis(exp.bullets)}</ul>
+          <div class="cv-row">
+            <div class="cv-entry-title">${escapeHtml(exp.title) || '&nbsp;'}</div>
+            <div class="cv-entry-meta">${escapeHtml(exp.period)}</div>
+          </div>
+          ${exp.place ? `<div class="cv-row" style="margin-top:-1px;"><div style="font-size:13px; color:#1A1A1A;">${escapeHtml(exp.place)}</div></div>` : ''}
+          <ul>${bulletsToLis(exp.bullets)}</ul>
         </div>`;
       });
       html += `</div>`;
     }
 
-    // Education (Rata Kiri)
+    // Education
     if(state.education.length){
       html += `<div class="cv-section"><div class="cv-h2">Pendidikan</div>`;
       state.education.forEach(edu => {
         html += `<div class="cv-entry">
-          <div style="font-weight:700;">${escapeHtml(edu.school) || '&nbsp;'}</div>
+          <div class="cv-entry-title">${escapeHtml(edu.school) || '&nbsp;'}</div>
           <div>${escapeHtml(edu.degree)}</div>
           <div>${escapeHtml(edu.period)}</div>
           ${edu.extra ? `<div>${escapeHtml(edu.extra)}</div>` : ''}
@@ -452,7 +468,7 @@
     const skills = skillsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
     if(skills.length){
       html += `<div class="cv-section"><div class="cv-h2">Skill</div>
-        <ul style="margin-top:2px; margin-bottom:4px; padding-left:18px;">${skills.map(s => `<li style="margin-bottom:1px;">${escapeHtml(s)}</li>`).join('')}</ul>
+        <div class="cv-skills"><ul>${skills.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
       </div>`;
     }
 
@@ -460,11 +476,12 @@
     const certs = certsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
     if(certs.length){
       html += `<div class="cv-section"><div class="cv-h2">Sertifikat</div>
-        <ul style="margin-top:2px; margin-bottom:4px; padding-left:18px;">${certs.map(c => `<li style="margin-bottom:1px;">${escapeHtml(c)}</li>`).join('')}</ul>
+        <div class="cv-skills"><ul>${certs.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul></div>
       </div>`;
     }
 
     document.getElementById('cv-preview').innerHTML = html;
+
     renderAtsChecklist({name, contactParts, summary, experienceCount: state.experience.length, educationCount: state.education.length, skillsCount: skills.length});
   }
 
@@ -487,36 +504,47 @@
     `).join('');
   }
 
+  // FUNGSI EKSPOR PDF INSTAN (LANGSUNG DOWNLOAD TANPA PRINT PREVIEW)
+  function exportToPdf() {
+    const element = document.getElementById('cv-preview');
+    const nameInput = document.getElementById('f-name').value.trim();
+    const filename = `CV_${nameInput || 'ATS_Friendly'}.pdf`;
+    
+    // Konfigurasi kertas pas A4 dokumen
+    const opt = {
+      margin:       [12, 14, 12, 14], // [atas, kiri, bawah, kanan] dalam mm
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Eksekusi auto-download langsung
+    html2pdf().set(opt).from(element).save();
+  }
+
   function exportToWord() {
     const cvContent = document.getElementById('cv-preview').innerHTML;
-    
-    // CSS Khusus untuk membungkam Word agar tampilannya patuh (Rapat)
-    const wordStyles = `
-      body { font-family: 'Calibri', 'Arial', sans-serif; color: #1A1A1A; font-size: 10pt; line-height: 1.15; }
-      .cv-name { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 2px; }
-      .cv-contact { text-align: center; font-size: 9pt; color: #333; margin-bottom: 12px; }
-      .cv-summary { text-align: justify; margin-bottom: 10px; }
-      .cv-h2 { font-size: 10.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1pt solid #1A1A1A; padding-bottom: 1px; margin-top: 12px; margin-bottom: 4px; }
-      .cv-section { margin-bottom: 6px; }
-      .cv-entry { margin-bottom: 6px; }
-      ul { margin-top: 2px; margin-bottom: 4px; padding-left: 20px; }
-      li { margin-bottom: 1px; text-align: justify; }
-      p { margin: 0; padding: 0; }
-    `;
+    const styles = document.getElementsByTagName('style')[0].innerHTML;
 
     const htmlTemplate = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
       <head>
         <meta charset="utf-8">
         <title>CV ATS-Friendly</title>
-        <style>${wordStyles}</style>
+        <style>
+          ${styles}
+          body { font-family: 'Calibri', 'Arial', sans-serif; color: #1A1A1A; }
+          .cv-h2 { border-bottom: 1.5pt solid #1A1A1A; }
+        </style>
       </head>
       <body>
-        ${cvContent}
+        <div class="paper" style="box-shadow:none; padding:0; margin:0;">
+          ${cvContent}
+        </div>
       </body>
       </html>
     `;
-    
     const blob = new Blob(['\ufeff' + htmlTemplate], {
       type: 'application/msword'
     });
