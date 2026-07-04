@@ -254,6 +254,8 @@
     </div>
   </div>
   <button class="btn btn-primary" onclick="window.print()">Unduh PDF</button>
+  <button class="btn" style="background:#2b579a; color:white; margin-left:8px;" onclick="exportToWord()">Unduh Word (.doc)</button>
+  </div>
 </div>
 
 <div class="layout">
@@ -303,6 +305,13 @@
         <label>Satu skill per baris</label>
         <textarea id="f-skills" oninput="render()" style="min-height:100px"></textarea>
       </div>
+
+      <div class="section-block">
+        <h2>Sertifikat</h2>
+        <label>Satu sertifikat per baris (Sertifikat — Penerbit — Tahun)</label>
+        <textarea id="f-certs" oninput="render()" style="min-height:100px" placeholder="Contoh: Certified SolidWorks Associate — Dassault Systèmes — 2025"></textarea>
+        </div>
+      
 
     </div>
   </div>
@@ -401,7 +410,6 @@
       .map(s => `<li>${escapeHtml(s)}</li>`)
       .join('');
   }
-
   function render(){
     const name = document.getElementById('f-name').value.trim();
     const city = document.getElementById('f-city').value.trim();
@@ -410,7 +418,10 @@
     const link = document.getElementById('f-link').value.trim();
     const summary = document.getElementById('f-summary').value.trim();
     const skillsRaw = document.getElementById('f-skills').value;
+    const skillsRaw = document.getElementById('f-skills').value;
 
+    const certsRaw = document.getElementById('f-certs').value;
+    
     const contactParts = [city, email, phone, link].filter(Boolean);
 
     let html = '';
@@ -457,6 +468,12 @@
       html += `<div class="cv-section"><div class="cv-h2">Skill</div>
         <div class="cv-skills"><ul>${skills.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>
       </div>`;
+
+    const certs = certsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(certs.length){
+      html += `<div class="cv-section"><div class="cv-h2">Sertifikat</div>
+        <div class="cv-skills"><ul>${certs.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul></div>
+      </div>`;
     }
 
     document.getElementById('cv-preview').innerHTML = html;
@@ -481,6 +498,44 @@
         <div>${c.label}</div>
       </div>
     `).join('');
+  }
+  function exportToWord() {
+    const cvContent = document.getElementById('cv-preview').innerHTML;
+    const styles = document.getElementsByTagName('style')[0].innerHTML;
+
+    const htmlTemplate = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8">
+        <title>CV ATS-Friendly</title>
+        <style>
+          ${styles}
+          body { font-family: 'Calibri', 'Arial', sans-serif; color: #1A1A1A; }
+          .cv-h2 { border-bottom: 1.5pt solid #1A1A1A; }
+        </style>
+      </head>
+      <body>
+        <div class="paper" style="box-shadow:none; padding:0; margin:0;">
+          ${cvContent}
+        </div>
+      </body>
+      </html>
+    `;
+    const blob = new Blob(['\ufeff' + htmlTemplate], {
+      type: 'application/msword'
+    });
+    
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    
+    const nameInput = document.getElementById('f-name').value.trim();
+    a.download = `CV_${nameInput || 'ATS_Friendly'}.doc`;
+    
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   // DATA DUMMY ACAK AMAN UNTUK PRIVASI (PREFILL)
