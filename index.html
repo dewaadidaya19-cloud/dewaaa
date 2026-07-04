@@ -251,15 +251,13 @@
   <div class="brand">
     <div class="brand-mark">CV</div>
     <div>
-      <h1>Builder CV ATS-Friendly by.Dewa</h1>
-      <span>Isi form, lihat preview, lalu unduh sebagai PDF atau Word. Gratis!</span>
-      <span>*Disarankan langsung unduh PDF, dikarenakan jika Word, hasilkan akan berantakan.</span>
+      <h1>Builder CV ATS-Friendly By.Dewa</h1>
+      <span>Isi form, lihat preview, lalu unduh sebagai PDF</span>
     </div>
   </div>
   <div>
-    <!-- Fungsi tombol PDF diubah agar mengunduh file secara otomatis -->
+    <!-- Menyisakan tombol unduh PDF otomatis saja -->
     <button class="btn btn-primary" onclick="exportToPdf()">Unduh PDF</button>
-    <button class="btn" style="background:#2b579a; color:white; margin-left:8px;" onclick="exportToWord()">Unduh Word (.doc)</button>
   </div>
 </div>
 
@@ -522,45 +520,6 @@
     
     // Eksekusi auto-download langsung
     html2pdf().set(opt).from(element).save();
-  }
-
-  function exportToWord() {
-    const cvContent = document.getElementById('cv-preview').innerHTML;
-    const styles = document.getElementsByTagName('style')[0].innerHTML;
-
-    const htmlTemplate = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="utf-8">
-        <title>CV ATS-Friendly</title>
-        <style>
-          ${styles}
-          body { font-family: 'Calibri', 'Arial', sans-serif; color: #1A1A1A; }
-          .cv-h2 { border-bottom: 1.5pt solid #1A1A1A; }
-        </style>
-      </head>
-      <body>
-        <div class="paper" style="box-shadow:none; padding:0; margin:0;">
-          ${cvContent}
-        </div>
-      </body>
-      </html>
-    `;
-    const blob = new Blob(['\ufeff' + htmlTemplate], {
-      type: 'application/msword'
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    
-    const nameInput = document.getElementById('f-name').value.trim();
-    a.download = `CV_${nameInput || 'ATS_Friendly'}.doc`;
-    
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   }
 
   // DATA DUMMY ACAK AMAN UNTUK PRIVASI (PREFILL)
